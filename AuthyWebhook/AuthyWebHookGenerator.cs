@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuthyWebhook.Models;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,42 +8,38 @@ namespace AuthyWebhook
 {
     public class AuthyWebHookGenerator
     {
-        private readonly string _apiKey;
-        private readonly string _accessKey;
-        private readonly string _signInKey;
         private string _url = "https://api.authy.com/dashboard/json/application/webhooks";
         private ICryptographyHelper cryptographyHelper;
         private readonly  string nonce;
+        private readonly AuthyConfiguration configuration;
 
-
-        public AuthyWebHookGenerator(string apiKey, string accessKey, string signInKey)
+        public AuthyWebHookGenerator(AuthyConfiguration configuration)
         {
-            _apiKey = apiKey;
-            _accessKey = accessKey;
-            _signInKey = signInKey;
+            this.configuration = configuration;
+
             nonce = Guid.NewGuid().ToString();
 
             cryptographyHelper = new CryptographyHelper();
         }
 
-        public async Task<string> CreateWebhooksAsync(string name, string events, string callBackUrl)
+        public async Task<string> CreateWebhooksAsync(WebHookConfiguration webHookConfiguration)
         {
 
             string method = "POST";
             string sortedParams =
-                $"access_key={_accessKey}&app_api_key={_apiKey}&events%5B%5D={events}&name={name}&url={Uri.EscapeDataString(callBackUrl)}";
+                $"access_key={configuration.AccessKey}&app_api_key={configuration.ApiKey}&events%5B%5D={webHookConfiguration.EventName}&name={webHookConfiguration.Name}&url={Uri.EscapeDataString(webHookConfiguration.CallBackUrl)}";
 
             string dataToSign = $"{nonce}|{method}|{_url}|{sortedParams}";
 
-            var computed_sig = cryptographyHelper.GenerateHmac(dataToSign, _signInKey);
+            var computed_sig = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
             
-            return await SendHttpRequest(callBackUrl, name, events, computed_sig);
+            return await SendHttpRequest(webHookConfiguration.CallBackUrl, webHookConfiguration.Name, webHookConfiguration.EventName, computed_sig);
 
         }
 
-        public string CreateWebhooks(string name, string events, string callBackUrl)
+        public string CreateWebhooks(WebHookConfiguration webHookConfiguration)
         {
-            return CreateWebhooksAsync(name, events, callBackUrl).GetAwaiter().GetResult();
+            return CreateWebhooksAsync(webHookConfiguration).GetAwaiter().GetResult();
         }
 
         private async Task<string> SendHttpRequest(string callBackUrl, string name, string events, string computed_sig)
@@ -53,8 +50,8 @@ namespace AuthyWebhook
                 new KeyValuePair<string, string>("url", callBackUrl),
                 new KeyValuePair<string, string>("name", name),
                 new KeyValuePair<string, string>("events[]", events),
-                new KeyValuePair<string, string>("app_api_key", _apiKey),
-                new KeyValuePair<string, string>("access_key", _accessKey),
+                new KeyValuePair<string, string>("app_api_key", configuration.ApiKey),
+                new KeyValuePair<string, string>("access_key", configuration.AccessKey),
             });
 
             client.DefaultRequestHeaders.Add("X-Authy-Signature-Nonce", nonce);
