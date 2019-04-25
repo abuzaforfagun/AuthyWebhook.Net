@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AuthyWebhook
 {
-    public class AuthyWebHookGenerator
+    public class AuthyWebHookGenerator : IAuthyWebHookGenerator
     {
         private string _url = "https://api.authy.com/dashboard/json/application/webhooks";
         private ICryptographyHelper cryptographyHelper;
@@ -46,7 +46,7 @@ namespace AuthyWebhook
         {
             HttpClient client = new HttpClient();
             string response = "";
-            FormUrlEncodedContent requestContent = new FormUrlEncodedContent(new[] {
+            var requestContent = new FormUrlEncodedContent(new[] {
                 new KeyValuePair<string, string>("url", callBackUrl),
                 new KeyValuePair<string, string>("name", name),
                 new KeyValuePair<string, string>("events[]", events),
