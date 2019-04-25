@@ -21,9 +21,8 @@ namespace AuthyWebhook
             cryptographyHelper = new CryptographyHelper();
         }
 
-        public async Task<string> CreateWebhooksAsync(WebHookConfiguration webHookConfiguration)
+        public async Task<T> CreateWebhooksAsync<T>(WebHookConfiguration webHookConfiguration)
         {
-
             string method = "POST";
             var sortedParams =
                 $"access_key={configuration.AccessKey}&app_api_key={configuration.ApiKey}&events%5B%5D={webHookConfiguration.EventName}&name={webHookConfiguration.Name}&url={Uri.EscapeDataString(webHookConfiguration.CallBackUrl)}";
@@ -34,13 +33,12 @@ namespace AuthyWebhook
             
             var requestModel = new RequestModel(webHookConfiguration, hmacSignature, nonce);
             var authyClient = new AuthyClient(configuration);
-            return await authyClient.SendHttpRequest(requestModel);
-
+            return await authyClient.SendHttpRequest<T>(requestModel);
         }
-
-        public string CreateWebhooks(WebHookConfiguration webHookConfiguration)
+        
+        public T CreateWebhooks<T>(WebHookConfiguration webHookConfiguration)
         {
-            return CreateWebhooksAsync(webHookConfiguration).GetAwaiter().GetResult();
+            return CreateWebhooksAsync<T>(webHookConfiguration).GetAwaiter().GetResult();
         }
     }
 }

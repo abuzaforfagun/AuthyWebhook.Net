@@ -5,7 +5,7 @@ namespace AuthyWebhook
 {
     public interface IAuthyWebHookGenerator
     {
-        Task<string> CreateWebhooksAsync(WebHookConfiguration webHookConfiguration);
-        string CreateWebhooks(WebHookConfiguration webHookConfiguration);
+        Task<T> CreateWebhooksAsync<T>(WebHookConfiguration webHookConfiguration);
+        T CreateWebhooks<T>(WebHookConfiguration webHookConfiguration);
     }
 }

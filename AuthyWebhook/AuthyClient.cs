@@ -1,4 +1,5 @@
 ﻿using AuthyWebhook.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -16,7 +17,7 @@ namespace AuthyWebhook
             Client = new HttpClient();
             this.configuration = configuration;
         }
-        public async Task<string> SendHttpRequest(RequestModel request)
+        public async Task<T> SendHttpRequest<T>(RequestModel request)
         {
             string response = "";
             var requestContent = new FormUrlEncodedContent(new[] {
@@ -31,8 +32,15 @@ namespace AuthyWebhook
             Client.DefaultRequestHeaders.Add("X-Authy-Signature", request.HmacSignature);
             var result = await Client.PostAsync(Constants.AUTHY_WEBHOOK_URL, requestContent);
             response = await result.Content.ReadAsStringAsync();
-
-            return response;
+            if (typeof(T) == typeof(string))
+            {
+                return (T)Convert.ChangeType(response, typeof(T));
+            }
+            else
+            {
+                var deserializeObject = JsonConvert.DeserializeObject(response, typeof(Response));
+                return (T)Convert.ChangeType(deserializeObject, typeof(T));
+            }
         }
     }
 }
