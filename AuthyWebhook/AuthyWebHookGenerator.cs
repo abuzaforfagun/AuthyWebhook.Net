@@ -25,7 +25,7 @@ namespace AuthyWebhook
             cryptographyHelper = new CryptographyHelper();
         }
 
-        public async Task CreateWebhooks(string name, string events, string callBackUrl)
+        public async Task<string> CreateWebhooksAsync(string name, string events, string callBackUrl)
         {
 
             string method = "POST";
@@ -36,13 +36,19 @@ namespace AuthyWebhook
 
             var computed_sig = cryptographyHelper.GenerateHmac(dataToSign, _signInKey);
             
-            SendHttpRequest(callBackUrl, name, events, computed_sig);
+            return await SendHttpRequest(callBackUrl, name, events, computed_sig);
 
         }
 
-        void SendHttpRequest(string callBackUrl, string name, string events, string computed_sig)
+        public string CreateWebhooks(string name, string events, string callBackUrl)
+        {
+            return CreateWebhooksAsync(name, events, callBackUrl).GetAwaiter().GetResult();
+        }
+
+        private async Task<string> SendHttpRequest(string callBackUrl, string name, string events, string computed_sig)
         {
             HttpClient client = new HttpClient();
+            string response = "";
             FormUrlEncodedContent requestContent = new FormUrlEncodedContent(new[] {
                 new KeyValuePair<string, string>("url", callBackUrl),
                 new KeyValuePair<string, string>("name", name),
@@ -55,12 +61,15 @@ namespace AuthyWebhook
             client.DefaultRequestHeaders.Add("X-Authy-Signature", computed_sig);
             try
             {
-                HttpResponseMessage result = client.PostAsync(_url, requestContent).GetAwaiter().GetResult();
+                var result = await client.PostAsync(_url, requestContent);
+                response = await result.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
 
             }
+
+            return response;
         }
         
     }
