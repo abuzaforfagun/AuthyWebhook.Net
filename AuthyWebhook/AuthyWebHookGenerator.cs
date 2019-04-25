@@ -36,12 +36,16 @@ namespace AuthyWebhook
                 $"access_key={accessKey}&app_api_key={apiKey}&events[]={events[0]}&name={name}&url={callBackUrl}";
             //sortedParams = Uri.EscapeDataString(sortedParams);
 
-
             string dataToSign = $"{nonce}|{method}|{url}|{sortedParams}";
+            dataToSign =
+                "213|POST|https://api.authy.com/dashboard/json/application/webhooks|0=a&1=c&10=%3D&100=e&101=v&102=e&103=n&104=t&105=s&106=%5B&107=%5D&108=%3D&109=o&11=1&110=n&111=e&112=_&113=t&114=o&115=W&116=u&117=c&118=h&119=_&12=V&120=r&121=e&122=q&123=u&124=e&125=s&126=t&127=_&128=r&129=e&13=i&130=s&131=p&132=o&133=n&134=d&135=e&136=d&137=%26&138=n&139=a&14=k&140=m&141=e&142=%3D&143=o&144=n&145=e&146=_&147=t&148=o&149=u&15=d&150=c&151=h&152=_&153=r&154=e&155=q&156=u&157=e&158=s&159=t&16=x&160=_&161=r&162=e&163=s&164=p&165=o&166=n&167=d&168=e&169=d&17=y&170=%26&171=u&172=r&173=l&174=%3D&175=h&176=t&177=t&178=p&179=s&18=d&180=%3A&181=%2F&182=%2F&183=e&184=x&185=a&186=m&187=p&188=l&189=e&19=e&190=%2F&191=a&192=p&193=i&194=%2F&195=w&196=e&197=b&198=h&199=o&2=c&20=R&200=o&201=k&202=e&203=d&21=K&22=O&23=J&24=4&25=Z&26=B&27=F&28=Q&29=Q&3=e&30=U&31=D&32=k&33=q&34=4&35=3&36=p&37=T&38=v&39=e&4=s&40=e&41=r&42=X&43=t&44=d&45=h&46=F&47=l&48=k&49=V&5=s&50=L&51=d&52=3&53=Y&54=%26&55=a&56=p&57=p&58=_&59=a&6=_&60=p&61=i&62=_&63=k&64=e&65=y&66=%3D&67=h&68=x&69=e&7=k&70=p&71=M&72=v&73=9&74=d&75=q&76=M&77=4&78=2&79=q&8=e&80=4&81=7&82=l&83=L&84=I&85=7&86=k&87=M&88=G&89=0&9=y&90=F&91=J&92=T&93=9&94=W&95=B&96=1&97=O&98=k&99=%26&access_key=1VikdxydeRKOJ4ZBFQQUDkq43pTveerXtdhFlkVLd3Y&app_api_key=hxepMv9dqM42q47lLI7kMG0FJT9WB1Ok";
 
 
-            var computed_sig = GenerateHMACSHA256Hash(dataToSign, signInKey);
-            
+            //var sha = GenerateHMACSHA256Hash(dataToSign, signInKey);
+            var computed_sig = GenerateHmac(dataToSign, signInKey);
+            var new_sha = Convert.ToBase64String(UnicodeEncoding.UTF8.GetBytes(computed_sig));
+
+
             HttpClient client = new HttpClient();
             FormUrlEncodedContent requestContent = new FormUrlEncodedContent(new[] {
                 new KeyValuePair<string, string>("url", callBackUrl),
@@ -61,345 +65,23 @@ namespace AuthyWebhook
             {
 
             }
-            //anotherDemo();
 
         }
 
-
-
-        string Encrypt(string source, string key)
+        string GenerateHmac(string message, string key)
         {
-            TripleDESCryptoServiceProvider desCryptoProvider = new TripleDESCryptoServiceProvider();
+            var encoding = new System.Text.ASCIIEncoding();
 
-            byte[] byteBuff;
+            using (var hmacsha256 = new HMACSHA256(encoding.GetBytes(key)))
 
-            try
             {
-                desCryptoProvider.Key = Encoding.UTF8.GetBytes(key);
-                byteBuff = Encoding.UTF8.GetBytes(source);
+                byte[] hashmessage = hmacsha256.ComputeHash(encoding.GetBytes(message));
 
-                string encoded =
-                    Convert.ToBase64String(desCryptoProvider.CreateEncryptor().TransformFinalBlock(byteBuff, 0, byteBuff.Length));
+                var base64String = Convert.ToBase64String(hashmessage);
 
-                return encoded;
+                return base64String;
+
             }
-            catch (Exception except)
-            {
-                Console.WriteLine(except + "\n\n" + except.StackTrace);
-                return null;
-            }
-        }
-
-
-
-
-
-
-
-        byte[] HmacSha256(byte[] key, string data)
-        {
-            using (var hmac = new HMACSHA256(key))
-            {
-                return hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
-            }
-        }
-
-        string GenerateHMACSHA256Hash(string stringValue, string key)
-        {
-            Encoding encoding = Encoding.UTF8;
-            var hash = GenerateHMACSHA256HashBytes(stringValue, key);
-            var hex = hash.Select<byte, string>(a => a.ToString("x2"))
-                .Aggregate<string>((a, b) => string.Format("{0}{1}", a, b));
-            return hex;
-        }
-
-
-        public static byte[] GenerateHMACSHA256HashBytes(string message, string key)
-        {
-            Encoding encoding = Encoding.UTF8;
-
-            //Reference http://en.wikipedia.org/wiki/Secure_Hash_Algorithm
-            //SHA256 block size is 512 bits => 64 bytes.
-            const int HashBlockSize = 64;
-
-
-            var keyBytes = encoding.GetBytes(key);
-            var opadKeySet = new byte[HashBlockSize];
-            var ipadKeySet = new byte[HashBlockSize];
-
-
-            if (keyBytes.Length > HashBlockSize)
-            {
-                keyBytes = GetHash(keyBytes);
-            }
-
-            // This condition is independent of previous
-            // condition. If previous was true
-            // we still need to execute this to make keyBytes same length
-            // as blocksize with 0 padded if its less than block size
-            if (keyBytes.Length < HashBlockSize)
-            {
-                var newKeyBytes = new byte[HashBlockSize];
-                keyBytes.CopyTo(newKeyBytes, 0);
-                keyBytes = newKeyBytes;
-            }
-
-
-            for (int i = 0; i < keyBytes.Length; i++)
-            {
-                opadKeySet[i] = (byte)(keyBytes[i] ^ 0x5C);
-                ipadKeySet[i] = (byte)(keyBytes[i] ^ 0x36);
-            }
-
-            var hash = GetHash(ByteConcat(opadKeySet,
-                GetHash(ByteConcat(ipadKeySet, encoding.GetBytes(message)))));
-            return hash;
-        }
-
-        public static byte[] GetHash(byte[] bytes)
-        {
-            var sha256Digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
-            sha256Digest.BlockUpdate(bytes, 0, bytes.Length);
-            byte[] result = new byte[sha256Digest.GetDigestSize()];
-            sha256Digest.DoFinal(result, 0);
-            return result;
-        }
-
-        public static byte[] ByteConcat(byte[] left, byte[] right)
-        {
-            if (null == left)
-            {
-                return right;
-            }
-
-            if (null == right)
-            {
-                return left;
-            }
-
-            byte[] newBytes = new byte[left.Length + right.Length];
-            left.CopyTo(newBytes, 0);
-            right.CopyTo(newBytes, left.Length);
-
-            return newBytes;
-        }
-
-        private string WithLibsodium(string message, string key)
-        {
-            //key = key.Replace('-', '+').Replace('_', '/').PadRight(key.Length + (4 - key.Length % 4) % 4, '=');
-            key = key.Replace(System.Environment.NewLine, "");
-            var secretBase64Decoded = Convert.FromBase64String(key);
-            var hmac = Convert.ToBase64String(HmacSha256(secretBase64Decoded, message));
-            return hmac;
-
-            //var _key = UnicodeEncoding.UTF32.GetBytes(key);
-            //HMACSHA256 hmac = new HMACSHA256(_key);
-            //var data = hmac.ComputeHash(UnicodeEncoding.UTF32.GetBytes(message));
-            //byte[] data = null;
-            ////returns a 32 byte authentication code
-            //try
-            //{
-            //    data = SecretKeyAuth.SignHmacSha256(message, _key);
-
-            //}
-            //catch (Exception ex)
-            //{
-
-            //}
-            //var signature = SecretKeyAuth.Sign(message, Encoding.ASCII.GetBytes(key));
-
-            //return Convert.ToBase64String(data);
-        }
-        private string EncryptWithHashlib(string message, string key)
-        {
-
-            IHMAC hmac = HashFactory.HMAC.CreateHMAC(HashFactory.Crypto.CreateSHA256());
-            hmac.Key = Converters.ConvertStringToBytes(key, Encoding.UTF32);
-            var r = hmac.ComputeString(message, Encoding.UTF32);
-            return Convert.ToBase64String(r.GetBytes());
-            //return r.ToString();
-
-        }
-        //private string HashHMAC(string _message, string _key)
-        //{
-        //    var key = Encoding.ASCII.GetBytes(_key);
-        //    var message = Encoding.ASCII.GetBytes(_message);
-        //    var hash = new HMACSHA256(key);
-        //    var hashValue = hash.ComputeHash(message);
-        //    return Convert.ToBase64String(hashValue);
-        //}
-
-        //private string CreateToken(string message, string secret)
-        //{
-        //    secret = secret ?? "";
-        //    var encoding = new System.Text.ASCIIEncoding();
-        //    byte[] keyByte = encoding.GetBytes(secret);
-        //    byte[] messageBytes = encoding.GetBytes(message);
-        //    using (var hmacsha256 = new HMACSHA256(keyByte))
-        //    {
-        //        byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
-        //        return Convert.ToBase64String(hashmessage);
-        //    }
-        //}
-
-        //String GetHash(String text, String key)
-        //{
-        //    // change according to your needs, an UTF8Encoding
-        //    // could be more suitable in certain situations
-        //    ASCIIEncoding encoding = new ASCIIEncoding();
-
-        //    Byte[] textBytes = encoding.GetBytes(text);
-        //    Byte[] keyBytes = encoding.GetBytes(key);
-
-        //    Byte[] hashBytes;
-
-        //    using (HMACSHA256 hash = new HMACSHA256(keyBytes))
-        //        hashBytes = hash.ComputeHash(textBytes);
-
-        //    return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-        //}
-
-        //public string Encode(string input, string _key)
-        //{
-        //    var key = Encoding.ASCII.GetBytes(_key);
-        //    HMACSHA1 myhmacsha1 = new HMACSHA1(key);
-        //    byte[] byteArray = Encoding.ASCII.GetBytes(input);
-        //    MemoryStream stream = new MemoryStream(byteArray);
-        //    return myhmacsha1.ComputeHash(stream).Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s);
-        //}
-
-
-        //public string Encrypt(string source, string key)
-        //{
-        //    TripleDESCryptoServiceProvider desCryptoProvider = new TripleDESCryptoServiceProvider();
-
-        //    byte[] byteBuff;
-
-        //    try
-        //    {
-        //        desCryptoProvider.Key = Encoding.UTF8.GetBytes(key);
-        //        desCryptoProvider.IV = UTF8Encoding.UTF8.GetBytes("ABCDEFGH");
-        //        byteBuff = Encoding.UTF8.GetBytes(source);
-
-        //        string iv = Convert.ToBase64String(desCryptoProvider.IV);
-        //        Console.WriteLine("iv: {0}", iv);
-
-        //        string encoded =
-        //            Convert.ToBase64String(desCryptoProvider.CreateEncryptor().TransformFinalBlock(byteBuff, 0, byteBuff.Length));
-
-        //        return encoded;
-        //    }
-        //    catch (Exception except)
-        //    {
-        //        Console.WriteLine(except + "\n\n" + except.StackTrace);
-        //        return null;
-        //    }
-        //}
-
-
-        public string Encrypt2(string plainText, string passPhrase)
-        {
-            // Salt and IV is randomly generated each time, but is preprended to encrypted cipher text
-            // so that the same Salt and IV values can be used when decrypting.  
-            int DerivationIterations = 1000;
-            int Keysize = 256;
-            var saltStringBytes = Generate256BitsOfRandomEntropy();
-            var ivStringBytes = Generate256BitsOfRandomEntropy();
-            var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-            using (var password = new Rfc2898DeriveBytes(Encoding.UTF8.GetBytes(passPhrase), saltStringBytes, DerivationIterations))
-            {
-                var keyBytes = password.GetBytes(Keysize / 8);
-                using (var symmetricKey = new RijndaelManaged())
-                {
-                    symmetricKey.BlockSize = 256;
-                    symmetricKey.Mode = CipherMode.CBC;
-                    symmetricKey.Padding = PaddingMode.PKCS7;
-                    using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
-                    {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                            {
-                                cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
-                                cryptoStream.FlushFinalBlock();
-                                // Create the final bytes as a concatenation of the random salt bytes, the random iv bytes and the cipher bytes.
-                                var cipherTextBytes = saltStringBytes;
-                                cipherTextBytes = cipherTextBytes.Concat(ivStringBytes).ToArray();
-                                cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
-                                memoryStream.Close();
-                                cryptoStream.Close();
-                                return Convert.ToBase64String(cipherTextBytes);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        string EncryptWithRij(string original, string key)
-        {
-            using (RijndaelManaged myRijndael = new RijndaelManaged())
-            {
-
-                myRijndael.Key = Encoding.ASCII.GetBytes(key);
-                myRijndael.GenerateIV();
-                // Encrypt the string to an array of bytes.
-                byte[] encrypted = EncryptStringToBytes(original, myRijndael.Key, myRijndael.IV);
-                return Convert.ToBase64String(encrypted);
-            }
-        }
-
-        byte[] EncryptStringToBytes(string plainText, byte[] Key, byte[] IV)
-        {
-            // Check arguments.
-            if (plainText == null || plainText.Length <= 0)
-                throw new ArgumentNullException("plainText");
-            if (Key == null || Key.Length <= 0)
-                throw new ArgumentNullException("Key");
-            if (IV == null || IV.Length <= 0)
-                throw new ArgumentNullException("IV");
-            byte[] encrypted;
-            // Create an RijndaelManaged object
-            // with the specified key and IV.
-            using (RijndaelManaged rijAlg = new RijndaelManaged())
-            {
-                rijAlg.Key = Key;
-                rijAlg.IV = IV;
-
-                // Create an encryptor to perform the stream transform.
-                ICryptoTransform encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
-
-                // Create the streams used for encryption.
-                using (MemoryStream msEncrypt = new MemoryStream())
-                {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-
-                            //Write all data to the stream.
-                            swEncrypt.Write(plainText);
-                        }
-                        encrypted = msEncrypt.ToArray();
-                    }
-                }
-            }
-
-
-            // Return the encrypted bytes from the memory stream.
-            return encrypted;
-
-        }
-
-        private byte[] Generate256BitsOfRandomEntropy()
-        {
-            var randomBytes = new byte[32]; // 32 Bytes will give us 256 bits.
-            using (var rngCsp = new RNGCryptoServiceProvider())
-            {
-                // Fill the array with cryptographically secure random bytes.
-                rngCsp.GetBytes(randomBytes);
-            }
-            return randomBytes;
         }
 
 
