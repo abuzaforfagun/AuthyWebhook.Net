@@ -10,12 +10,14 @@ namespace AuthyWebhook.Models
         public string Name { get; }
         public string EventName { get; }
         public string HmacSignature { get; }
+        public string Nonce { get; }
 
-        public RequestModel(WebHookConfiguration configuration, string hmacSignature)
+        public RequestModel(WebHookConfiguration configuration, string hmacSignature, string nonce)
         {
             Name = configuration.Name;
             EventName = configuration.EventName;
             HmacSignature = hmacSignature;
+            Nonce = nonce;
             CallbackUrl = configuration.CallBackUrl;
         }
 

@@ -8,7 +8,6 @@ namespace AuthyWebhook
 {
     public class AuthyWebHookGenerator : IAuthyWebHookGenerator
     {
-        private string _url = "https://api.authy.com/dashboard/json/application/webhooks";
         private ICryptographyHelper cryptographyHelper;
         private readonly  string nonce;
         private readonly AuthyConfiguration configuration;
@@ -29,12 +28,13 @@ namespace AuthyWebhook
             var sortedParams =
                 $"access_key={configuration.AccessKey}&app_api_key={configuration.ApiKey}&events%5B%5D={webHookConfiguration.EventName}&name={webHookConfiguration.Name}&url={Uri.EscapeDataString(webHookConfiguration.CallBackUrl)}";
 
-            string dataToSign = $"{nonce}|{method}|{_url}|{sortedParams}";
+            string dataToSign = $"{nonce}|{method}|{Constants.AUTHY_WEBHOOK_URL}|{sortedParams}";
 
             var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
             
-            var requestModel = new RequestModel(webHookConfiguration, hmacSignature);
-            return await SendHttpRequest(requestModel);
+            var requestModel = new RequestModel(webHookConfiguration, hmacSignature, nonce);
+            var authyClient = new AuthyClient(configuration);
+            return await authyClient.SendHttpRequest(requestModel);
 
         }
 
@@ -42,33 +42,5 @@ namespace AuthyWebhook
         {
             return CreateWebhooksAsync(webHookConfiguration).GetAwaiter().GetResult();
         }
-
-        private async Task<string> SendHttpRequest(RequestModel request)
-        {
-            HttpClient client = new HttpClient();
-            string response = "";
-            var requestContent = new FormUrlEncodedContent(new[] {
-                new KeyValuePair<string, string>("url", request.CallbackUrl),
-                new KeyValuePair<string, string>("name", request.Name),
-                new KeyValuePair<string, string>("events[]", request.EventName),
-                new KeyValuePair<string, string>("app_api_key", configuration.ApiKey),
-                new KeyValuePair<string, string>("access_key", configuration.AccessKey),
-            });
-
-            client.DefaultRequestHeaders.Add("X-Authy-Signature-Nonce", nonce);
-            client.DefaultRequestHeaders.Add("X-Authy-Signature", request.HmacSignature);
-            try
-            {
-                var result = await client.PostAsync(_url, requestContent);
-                response = await result.Content.ReadAsStringAsync();
-            }
-            catch (Exception ex)
-            {
-
-            }
-
-            return response;
-        }
-        
     }
 }
