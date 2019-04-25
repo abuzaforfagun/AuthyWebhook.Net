@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthyWebhook", "AuthyWebhook\AuthyWebhook.csproj", "{5D76583C-1FFA-4D4F-AADD-153CEF18FD24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthyWebhook", "AuthyWebhook\AuthyWebhook.csproj", "{5D76583C-1FFA-4D4F-AADD-153CEF18FD24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAuthyWebhook.Console", "..\TestAuthyWebhook.Console\TestAuthyWebhook.Console.csproj", "{9A85BA93-969D-4D5B-8378-E42D71BE80F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthyWebhook.Console", "AuthyWebhook.Console\AuthyWebhook.Console.csproj", "{257C87DB-F8D6-4BD0-92EB-59E9A83D2FBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{5D76583C-1FFA-4D4F-AADD-153CEF18FD24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D76583C-1FFA-4D4F-AADD-153CEF18FD24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D76583C-1FFA-4D4F-AADD-153CEF18FD24}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9A85BA93-969D-4D5B-8378-E42D71BE80F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9A85BA93-969D-4D5B-8378-E42D71BE80F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9A85BA93-969D-4D5B-8378-E42D71BE80F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9A85BA93-969D-4D5B-8378-E42D71BE80F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{257C87DB-F8D6-4BD0-92EB-59E9A83D2FBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{257C87DB-F8D6-4BD0-92EB-59E9A83D2FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{257C87DB-F8D6-4BD0-92EB-59E9A83D2FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{257C87DB-F8D6-4BD0-92EB-59E9A83D2FBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -31,15 +31,16 @@ namespace AuthyWebhook
             string signInKey = "sMDyDH5Z3tWfg8Z3dG44nJ2kg9Gsc48O";
             string callBackUrl = "https://example/api/webhooked";
             string name = "one_touch_request_responded";
-            string nonce = "155612034586700.155612034586702";
+            string nonce = "213";
             string sortedParams =
                 $"access_key={accessKey}&app_api_key={apiKey}&events[]={events[0]}&name={name}&url={callBackUrl}";
+            //sortedParams = Uri.EscapeDataString(sortedParams);
 
 
             string dataToSign = $"{nonce}|{method}|{url}|{sortedParams}";
 
 
-            var computed_sig = WithLibsodium(dataToSign, signInKey);
+            var computed_sig = GenerateHMACSHA256Hash(dataToSign, signInKey);
             
             HttpClient client = new HttpClient();
             FormUrlEncodedContent requestContent = new FormUrlEncodedContent(new[] {
@@ -49,6 +50,7 @@ namespace AuthyWebhook
                 new KeyValuePair<string, string>("app_api_key", apiKey),
                 new KeyValuePair<string, string>("access_key", accessKey),
             });
+            //computed_sig = "j781eqrHy44ilJW+ezReaRHj/C9stNNNt9HyojIOBh8=";
             client.DefaultRequestHeaders.Add("X-Authy-Signature-Nonce", nonce);
             client.DefaultRequestHeaders.Add("X-Authy-Signature", computed_sig);
             try
@@ -62,6 +64,38 @@ namespace AuthyWebhook
             //anotherDemo();
 
         }
+
+
+
+        string Encrypt(string source, string key)
+        {
+            TripleDESCryptoServiceProvider desCryptoProvider = new TripleDESCryptoServiceProvider();
+
+            byte[] byteBuff;
+
+            try
+            {
+                desCryptoProvider.Key = Encoding.UTF8.GetBytes(key);
+                byteBuff = Encoding.UTF8.GetBytes(source);
+
+                string encoded =
+                    Convert.ToBase64String(desCryptoProvider.CreateEncryptor().TransformFinalBlock(byteBuff, 0, byteBuff.Length));
+
+                return encoded;
+            }
+            catch (Exception except)
+            {
+                Console.WriteLine(except + "\n\n" + except.StackTrace);
+                return null;
+            }
+        }
+
+
+
+
+
+
+
         byte[] HmacSha256(byte[] key, string data)
         {
             using (var hmac = new HMACSHA256(key))
@@ -70,9 +104,90 @@ namespace AuthyWebhook
             }
         }
 
+        string GenerateHMACSHA256Hash(string stringValue, string key)
+        {
+            Encoding encoding = Encoding.UTF8;
+            var hash = GenerateHMACSHA256HashBytes(stringValue, key);
+            var hex = hash.Select<byte, string>(a => a.ToString("x2"))
+                .Aggregate<string>((a, b) => string.Format("{0}{1}", a, b));
+            return hex;
+        }
+
+
+        public static byte[] GenerateHMACSHA256HashBytes(string message, string key)
+        {
+            Encoding encoding = Encoding.UTF8;
+
+            //Reference http://en.wikipedia.org/wiki/Secure_Hash_Algorithm
+            //SHA256 block size is 512 bits => 64 bytes.
+            const int HashBlockSize = 64;
+
+
+            var keyBytes = encoding.GetBytes(key);
+            var opadKeySet = new byte[HashBlockSize];
+            var ipadKeySet = new byte[HashBlockSize];
+
+
+            if (keyBytes.Length > HashBlockSize)
+            {
+                keyBytes = GetHash(keyBytes);
+            }
+
+            // This condition is independent of previous
+            // condition. If previous was true
+            // we still need to execute this to make keyBytes same length
+            // as blocksize with 0 padded if its less than block size
+            if (keyBytes.Length < HashBlockSize)
+            {
+                var newKeyBytes = new byte[HashBlockSize];
+                keyBytes.CopyTo(newKeyBytes, 0);
+                keyBytes = newKeyBytes;
+            }
+
+
+            for (int i = 0; i < keyBytes.Length; i++)
+            {
+                opadKeySet[i] = (byte)(keyBytes[i] ^ 0x5C);
+                ipadKeySet[i] = (byte)(keyBytes[i] ^ 0x36);
+            }
+
+            var hash = GetHash(ByteConcat(opadKeySet,
+                GetHash(ByteConcat(ipadKeySet, encoding.GetBytes(message)))));
+            return hash;
+        }
+
+        public static byte[] GetHash(byte[] bytes)
+        {
+            var sha256Digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
+            sha256Digest.BlockUpdate(bytes, 0, bytes.Length);
+            byte[] result = new byte[sha256Digest.GetDigestSize()];
+            sha256Digest.DoFinal(result, 0);
+            return result;
+        }
+
+        public static byte[] ByteConcat(byte[] left, byte[] right)
+        {
+            if (null == left)
+            {
+                return right;
+            }
+
+            if (null == right)
+            {
+                return left;
+            }
+
+            byte[] newBytes = new byte[left.Length + right.Length];
+            left.CopyTo(newBytes, 0);
+            right.CopyTo(newBytes, left.Length);
+
+            return newBytes;
+        }
+
         private string WithLibsodium(string message, string key)
         {
-            key = key.Replace('-', '+').Replace('_', '/').PadRight(key.Length + (4 - key.Length % 4) % 4, '=');
+            //key = key.Replace('-', '+').Replace('_', '/').PadRight(key.Length + (4 - key.Length % 4) % 4, '=');
+            key = key.Replace(System.Environment.NewLine, "");
             var secretBase64Decoded = Convert.FromBase64String(key);
             var hmac = Convert.ToBase64String(HmacSha256(secretBase64Decoded, message));
             return hmac;
