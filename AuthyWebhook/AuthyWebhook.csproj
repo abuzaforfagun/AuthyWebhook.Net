@@ -4,10 +4,4 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BouncyCastle-Patch" Version="1.7.0" />
-    <PackageReference Include="HashLib" Version="2.0.1" />
-    <PackageReference Include="libsodium-net" Version="0.10.0" />
-  </ItemGroup>
-
 </Project>
