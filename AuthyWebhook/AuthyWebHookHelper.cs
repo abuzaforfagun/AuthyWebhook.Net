@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace AuthyWebhook
 {
-    public class AuthyWebHookGenerator : IAuthyWebHookGenerator
+    public class AuthyWebHookHelper : IAuthyWebHookHelper
     {
         private ICryptographyHelper cryptographyHelper;
         private readonly string nonce;
         private readonly AuthyConfiguration configuration;
         public List<Response> WebHooks { get; set; }
 
-        public AuthyWebHookGenerator(AuthyConfiguration configuration)
+        public AuthyWebHookHelper(AuthyConfiguration configuration)
         {
             this.configuration = configuration;
 
