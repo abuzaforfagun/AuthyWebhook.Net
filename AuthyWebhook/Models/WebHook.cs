@@ -30,5 +30,16 @@ namespace AuthyWebhook.Models
         {
             RequestType = HttpMethod.Get;
         }
+
+
+        public string GetAuthyUrl()
+        {
+            if (Id != null)
+            {
+                return $"{Constants.AUTHY_WEBHOOK_URL}/{Id}";
+            }
+
+            return Constants.AUTHY_WEBHOOK_URL;
+        }
     }
 }

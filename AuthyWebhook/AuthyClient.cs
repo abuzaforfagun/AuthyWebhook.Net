@@ -22,7 +22,7 @@ namespace AuthyWebhook
 
             Client.DefaultRequestHeaders.Add("X-Authy-Signature-Nonce", request.CryptoConfiguration.Nonce);
             Client.DefaultRequestHeaders.Add("X-Authy-Signature", request.CryptoConfiguration.HmacSignature);
-            var httpRequestMessage = new HttpRequestMessage(request.WebHook.RequestType, Constants.GetAuthyUrl(request.WebHook.Id));
+            var httpRequestMessage = new HttpRequestMessage(request.WebHook.RequestType, request.WebHook.GetAuthyUrl());
             httpRequestMessage.Content = requestContent;
             
             var result = await Client.SendAsync(httpRequestMessage);

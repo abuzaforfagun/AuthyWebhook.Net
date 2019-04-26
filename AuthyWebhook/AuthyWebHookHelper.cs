@@ -80,7 +80,7 @@ namespace AuthyWebhook
                 sortedParams += $"&events%5B%5D={webHook.EventName}&name={webHook.Name}&url={Uri.EscapeDataString(webHook.CallBackUrl)}";
             }
 
-            return $"{nonce}|{webHook.RequestType}|{Constants.GetAuthyUrl(webHook.Id)}|{sortedParams}"; ;
+            return $"{nonce}|{webHook.RequestType}|{webHook.GetAuthyUrl()}|{sortedParams}"; ;
         }
 
         /// <summary>
