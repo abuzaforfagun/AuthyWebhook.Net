@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-
-namespace AuthyWebhook.Models
+﻿namespace AuthyWebhook.Models
 {
     public class RequestConfiguration
     {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AuthyWebhook.Models
+﻿namespace AuthyWebhook.Models
 {
     public class AuthyConfiguration
     {
@@ -12,9 +8,9 @@ namespace AuthyWebhook.Models
 
         public AuthyConfiguration(string apiKey, string accessKey, string signinKey)
         {
-            this.ApiKey = apiKey;
-            this.AccessKey = accessKey;
-            this.SigninKey = signinKey;
+            ApiKey = apiKey;
+            AccessKey = accessKey;
+            SigninKey = signinKey;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics;
-using System.Net.Http;
+﻿using System.Net.Http;
 
 namespace AuthyWebhook.Models
 {
