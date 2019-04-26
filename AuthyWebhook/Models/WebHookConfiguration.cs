@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AuthyWebhook.Models
+﻿namespace AuthyWebhook.Models
 {
     public class WebHookConfiguration
     {

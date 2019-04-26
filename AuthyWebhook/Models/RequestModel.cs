@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
-
-namespace AuthyWebhook.Models
+﻿namespace AuthyWebhook.Models
 {
     public class RequestModel
     {
