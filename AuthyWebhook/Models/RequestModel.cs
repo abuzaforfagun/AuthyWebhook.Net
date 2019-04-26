@@ -3,21 +3,18 @@
     public class RequestModel
     {
         public RequestConfiguration RequestConfiguration { get; }
-        public string CallbackUrl { get; }
-        public string Name { get; }
-        public string EventName { get; }
+        public WebHook WebHook { get; set; }
 
-        public RequestModel(WebHookConfiguration configuration, RequestConfiguration requestConfiguration)
+        public RequestModel(WebHook webHook, RequestConfiguration requestConfiguration)
         {
             RequestConfiguration = requestConfiguration;
-            Name = configuration.Name;
-            EventName = configuration.EventName;
-            CallbackUrl = configuration.CallBackUrl;
+            WebHook = webHook;
         }
 
         public RequestModel(RequestConfiguration requestConfiguration)
         {
             RequestConfiguration = requestConfiguration;
+            WebHook = new WebHook();
         }
     }
 }

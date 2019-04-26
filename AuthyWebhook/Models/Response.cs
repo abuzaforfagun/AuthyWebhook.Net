@@ -19,7 +19,7 @@ namespace AuthyWebhook.Models
     {
         public ResponseWebHook webhook { get; set; }
         public string message { get; set; }
-        public string success { get; set; }
+        public bool success { get; set; }
 
         public override string ToString()
         {

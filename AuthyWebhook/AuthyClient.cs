@@ -18,11 +18,11 @@ namespace AuthyWebhook
         }
         public async Task<T> SendHttpRequest<T>(RequestModel request)
         {
-            var requestContent = GetRequestContent(request);
+            var requestContent = GetRequestContent(request.WebHook);
 
             Client.DefaultRequestHeaders.Add("X-Authy-Signature-Nonce", request.RequestConfiguration.Nonce);
             Client.DefaultRequestHeaders.Add("X-Authy-Signature", request.RequestConfiguration.HmacSignature);
-            var httpRequestMessage = new HttpRequestMessage(request.RequestConfiguration.RequestType, Constants.AUTHY_WEBHOOK_URL);
+            var httpRequestMessage = new HttpRequestMessage(request.WebHook.RequestType, Constants.GetAuthyUrl(request.WebHook.Id));
             httpRequestMessage.Content = requestContent;
             
             var result = await Client.SendAsync(httpRequestMessage);
@@ -38,7 +38,8 @@ namespace AuthyWebhook
             }
         }
 
-        private FormUrlEncodedContent GetRequestContent(RequestModel request)
+
+        private FormUrlEncodedContent GetRequestContent(WebHook webHook)
         {
             List<KeyValuePair<string, string>> bodyData = new List<KeyValuePair<string, string>>();
 
@@ -46,13 +47,13 @@ namespace AuthyWebhook
                 new KeyValuePair<string, string>("app_api_key", configuration.ApiKey),
                 new KeyValuePair<string, string>("access_key", configuration.AccessKey)
             });
-            if (request.CallbackUrl != null)
+            if (webHook.RequestType == HttpMethod.Post)
             {
                 bodyData.AddRange(new[]
                 {
-                    new KeyValuePair<string, string>("url", request.CallbackUrl),
-                    new KeyValuePair<string, string>("name", request.Name),
-                    new KeyValuePair<string, string>("events[]", request.EventName)
+                    new KeyValuePair<string, string>("url", webHook.CallBackUrl),
+                    new KeyValuePair<string, string>("name", webHook.Name),
+                    new KeyValuePair<string, string>("events[]", webHook.EventName)
                 });
             }
             return new FormUrlEncodedContent(bodyData);

@@ -22,24 +22,22 @@ namespace AuthyWebhook
             cryptographyHelper = new CryptographyHelper();
         }
 
-        public async Task<T> CreateWebhooksAsync<T>(WebHookConfiguration webHookConfiguration)
+        public async Task<T> CreateWebhooksAsync<T>(WebHook webHook)
         {
-            var _requestType = "POST";
-            
-            string dataToSign = GetDataToSign(_requestType, webHookConfiguration);
+            string dataToSign = GetDataToSign(webHook);
 
             var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
-            var requestConfiguration = new RequestConfiguration(hmacSignature, nonce, HttpMethod.Post);
-            var requestModel = new RequestModel(webHookConfiguration, requestConfiguration);
+            var requestConfiguration = new RequestConfiguration(hmacSignature, nonce);
+            var requestModel = new RequestModel(webHook, requestConfiguration);
             var authyClient = new AuthyClient(configuration);
             return await authyClient.SendHttpRequest<T>(requestModel);
         }
 
         public async Task<T> GetAuthyWebhooksAsync<T>()
         {
-            var _requestType = "GET";
+            var webHook = new WebHook();
 
-            string dataToSign = GetDataToSign(_requestType);
+            string dataToSign = GetDataToSign(webHook);
             var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
             var requestConfiguration = new RequestConfiguration(hmacSignature, nonce);
             var requestModel = new RequestModel(requestConfiguration);
@@ -47,31 +45,42 @@ namespace AuthyWebhook
             return await authyClient.SendHttpRequest<T>(requestModel);
         }
 
-        private string GetDataToSign(string requestType, WebHookConfiguration webHookConfiguration = null)
+        public async Task<bool> DeleteWebHookAsync(string webHookId)
+        {
+            var webHook = new WebHook(webHookId);
+
+            string dataToSign = GetDataToSign(webHook);
+            var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
+            var requestConfiguration = new RequestConfiguration(hmacSignature, nonce);
+            var requestModel = new RequestModel(webHook, requestConfiguration);
+            var authyClient = new AuthyClient(configuration);
+            return (await authyClient.SendHttpRequest<Response>(requestModel)).success;
+        }
+
+        private string GetDataToSign(WebHook webHook)
         {
             var sortedParams = $"access_key={configuration.AccessKey}&app_api_key={configuration.ApiKey}";
-            if (webHookConfiguration != null && webHookConfiguration.CallBackUrl != null)
+            if (webHook != null && webHook.CallBackUrl != null)
             {
-                sortedParams +=
-                    $"&events%5B%5D={webHookConfiguration.EventName}&name={webHookConfiguration.Name}&url={Uri.EscapeDataString(webHookConfiguration.CallBackUrl)}";
+                sortedParams += $"&events%5B%5D={webHook.EventName}&name={webHook.Name}&url={Uri.EscapeDataString(webHook.CallBackUrl)}";
             }
 
-            return $"{nonce}|{requestType}|{Constants.AUTHY_WEBHOOK_URL}|{sortedParams}"; ;
+            return $"{nonce}|{webHook.RequestType}|{Constants.GetAuthyUrl(webHook.Id)}|{sortedParams}"; ;
         }
 
-        public T CreateWebhooks<T>(WebHookConfiguration webHookConfiguration)
+        public T CreateWebhooks<T>(WebHook webHook)
         {
-            return CreateWebhooksAsync<T>(webHookConfiguration).GetAwaiter().GetResult();
+            return CreateWebhooksAsync<T>(webHook).GetAwaiter().GetResult();
         }
 
-        public async Task<string> CreateWebhooksAsync(WebHookConfiguration webHookConfiguration)
+        public async Task<string> CreateWebhooksAsync(WebHook webHook)
         {
-            return await CreateWebhooksAsync<string>(webHookConfiguration);
+            return await CreateWebhooksAsync<string>(webHook);
         }
 
-        public string CreateWebhooks(WebHookConfiguration webHookConfiguration)
+        public string CreateWebhooks(WebHook webHook)
         {
-            return CreateWebhooks<string>(webHookConfiguration);
+            return CreateWebhooks<string>(webHook);
         }
 
         public T GetAuthyWebhooks<T>()
@@ -82,6 +91,11 @@ namespace AuthyWebhook
         public string GetAuthyWebhooks()
         {
             return GetAuthyWebhooksAsync<string>().GetAwaiter().GetResult();
+        }
+
+        public bool DeleteWebHook(string webHookId)
+        {
+            return DeleteWebHookAsync(webHookId).GetAwaiter().GetResult();
         }
     }
 }
