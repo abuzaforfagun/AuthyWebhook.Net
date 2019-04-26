@@ -26,8 +26,8 @@ namespace AuthyWebhook
             string dataToSign = GetDataToSign(webHook);
 
             var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
-            var requestConfiguration = new RequestConfiguration(hmacSignature, nonce);
-            var requestModel = new RequestModel(webHook, requestConfiguration);
+            var cryptoConfiguration = new CryptoConfiguration(hmacSignature, nonce);
+            var requestModel = new Request(webHook, cryptoConfiguration);
             var authyClient = new AuthyClient(configuration);
             return await authyClient.SendHttpRequest<T>(requestModel);
         }
@@ -38,8 +38,8 @@ namespace AuthyWebhook
 
             string dataToSign = GetDataToSign(webHook);
             var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
-            var requestConfiguration = new RequestConfiguration(hmacSignature, nonce);
-            var requestModel = new RequestModel(requestConfiguration);
+            var cryptoConfiguration = new CryptoConfiguration(hmacSignature, nonce);
+            var requestModel = new Request(cryptoConfiguration);
             var authyClient = new AuthyClient(configuration);
             return await authyClient.SendHttpRequest<T>(requestModel);
         }
@@ -50,8 +50,8 @@ namespace AuthyWebhook
 
             string dataToSign = GetDataToSign(webHook);
             var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
-            var requestConfiguration = new RequestConfiguration(hmacSignature, nonce);
-            var requestModel = new RequestModel(webHook, requestConfiguration);
+            var cryptoConfiguration = new CryptoConfiguration(hmacSignature, nonce);
+            var requestModel = new Request(webHook, cryptoConfiguration);
             var authyClient = new AuthyClient(configuration);
             return (await authyClient.SendHttpRequest<Response>(requestModel)).success;
         }

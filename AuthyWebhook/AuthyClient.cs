@@ -16,12 +16,12 @@ namespace AuthyWebhook
             Client = new HttpClient();
             this.configuration = configuration;
         }
-        public async Task<T> SendHttpRequest<T>(RequestModel request)
+        public async Task<T> SendHttpRequest<T>(Request request)
         {
             var requestContent = GetRequestContent(request.WebHook);
 
-            Client.DefaultRequestHeaders.Add("X-Authy-Signature-Nonce", request.RequestConfiguration.Nonce);
-            Client.DefaultRequestHeaders.Add("X-Authy-Signature", request.RequestConfiguration.HmacSignature);
+            Client.DefaultRequestHeaders.Add("X-Authy-Signature-Nonce", request.CryptoConfiguration.Nonce);
+            Client.DefaultRequestHeaders.Add("X-Authy-Signature", request.CryptoConfiguration.HmacSignature);
             var httpRequestMessage = new HttpRequestMessage(request.WebHook.RequestType, Constants.GetAuthyUrl(request.WebHook.Id));
             httpRequestMessage.Content = requestContent;
             
