@@ -40,5 +40,14 @@ namespace AuthyWebhook
         {
             return CreateWebhooksAsync<T>(webHookConfiguration).GetAwaiter().GetResult();
         }
+
+        public async Task<string> CreateWebhooksAsync(WebHookConfiguration webHookConfiguration)
+        {
+            return await CreateWebhooksAsync<string>(webHookConfiguration);
+        }
+        public string CreateWebhooks(WebHookConfiguration webHookConfiguration)
+        {
+            return CreateWebhooks<string>(webHookConfiguration);
+        }
     }
 }
