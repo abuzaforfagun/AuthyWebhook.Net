@@ -1,6 +1,4 @@
 ﻿using AuthyWebhook.Models;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -16,7 +14,7 @@ namespace AuthyWebhook
             Client = new HttpClient();
             this.configuration = configuration;
         }
-        public async Task<T> SendHttpRequest<T>(Request request)
+        public async Task<string> SendHttpRequest(Request request)
         {
             var requestContent = GetRequestContent(request.WebHook);
 
@@ -26,16 +24,7 @@ namespace AuthyWebhook
             httpRequestMessage.Content = requestContent;
             
             var result = await Client.SendAsync(httpRequestMessage);
-            var response = await result.Content.ReadAsStringAsync();
-            if (typeof(T) == typeof(string))
-            {
-                return (T)Convert.ChangeType(response, typeof(T));
-            }
-            else
-            {
-                var deserializeObject = JsonConvert.DeserializeObject(response, typeof(Response));
-                return (T)Convert.ChangeType(deserializeObject, typeof(T));
-            }
+            return await result.Content.ReadAsStringAsync();
         }
 
 

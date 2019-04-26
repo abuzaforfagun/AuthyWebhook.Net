@@ -1,4 +1,5 @@
 ﻿using AuthyWebhook.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -35,13 +36,15 @@ namespace AuthyWebhook
             var cryptoConfiguration = new CryptoConfiguration(hmacSignature, nonce);
             var requestModel = new Request(webHook, cryptoConfiguration);
             var authyClient = new AuthyClient(configuration);
-            return await authyClient.SendHttpRequest<T>(requestModel);
+            var result = await authyClient.SendHttpRequest(requestModel);
+            return ConvertStringToResponse<T>(result);
+
         }
 
         /// <summary>
         /// Get all registered webhooks in asyc way
         /// </summary>
-        /// <typeparam name="T">IList<Response> or string</typeparam>
+        /// <typeparam name="T">ResponseList or string</typeparam>
         /// <returns>List of registered webhooks in T format</returns>
         public async Task<T> GetAsync<T>()
         {
@@ -52,7 +55,21 @@ namespace AuthyWebhook
             var cryptoConfiguration = new CryptoConfiguration(hmacSignature, nonce);
             var requestModel = new Request(cryptoConfiguration);
             var authyClient = new AuthyClient(configuration);
-            return await authyClient.SendHttpRequest<T>(requestModel);
+            var response = await authyClient.SendHttpRequest(requestModel);
+            return ConvertStringToResponse<T>(response);
+        }
+        
+        private static T ConvertStringToResponse<T>(string response)
+        {
+            if (typeof(T) == typeof(string))
+            {
+                return (T)Convert.ChangeType(response, typeof(T));
+            }
+            else
+            {
+                var deserializeObject = JsonConvert.DeserializeObject(response, typeof(T));
+                return (T)Convert.ChangeType(deserializeObject, typeof(T));
+            }
         }
 
         /// <summary>
@@ -69,7 +86,8 @@ namespace AuthyWebhook
             var cryptoConfiguration = new CryptoConfiguration(hmacSignature, nonce);
             var requestModel = new Request(webHook, cryptoConfiguration);
             var authyClient = new AuthyClient(configuration);
-            return (await authyClient.SendHttpRequest<Response>(requestModel)).success;
+            var result = await authyClient.SendHttpRequest(requestModel);
+            return ConvertStringToResponse<Response>(result).success;
         }
 
         private string GetDataToSign(WebHook webHook)
@@ -117,7 +135,7 @@ namespace AuthyWebhook
         /// <summary>
         /// Get all registered webhooks
         /// </summary>
-        /// <typeparam name="T">IList<Response> or string</typeparam>
+        /// <typeparam name="T">ResponseList or string</typeparam>
         /// <returns>List of registered webhooks in T format</returns>
         public T Get<T>()
         {

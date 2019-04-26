@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AuthyWebhook.Models;
+﻿using AuthyWebhook.Models;
 
 namespace AuthyWebhook.Console
 {
@@ -8,10 +7,10 @@ namespace AuthyWebhook.Console
         private static AuthyWebHookHelper authyWebHookHelper;
         static void Main(string[] args)
         {
-            var authyConfiguration = new AuthyConfiguration("API_KEY", "ACCESS_KEY", "SIGNIN_KEY");
+            var authyConfiguration = new AuthyConfiguration("hxepMv9dqM42q47lLI7kMG0FJT9WB1Ok", "1VikdxydeRKOJ4ZBFQQUDkq43pTveerXtdhFlkVLd3Y", "sMDyDH5Z3tWfg8Z3dG44nJ2kg9Gsc48O");
             authyWebHookHelper = new AuthyWebHookHelper(authyConfiguration);
 
-            var result = ListSample <IList<Response>>();
+            var result = ListSample <ResponseList>();
             System.Console.WriteLine(result);
             System.Console.Read();
         }
