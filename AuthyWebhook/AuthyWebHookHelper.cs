@@ -22,7 +22,7 @@ namespace AuthyWebhook
             cryptographyHelper = new CryptographyHelper();
         }
 
-        public async Task<T> CreateWebhooksAsync<T>(WebHook webHook)
+        public async Task<T> CreateAsync<T>(WebHook webHook)
         {
             string dataToSign = GetDataToSign(webHook);
 
@@ -33,7 +33,7 @@ namespace AuthyWebhook
             return await authyClient.SendHttpRequest<T>(requestModel);
         }
 
-        public async Task<T> GetAuthyWebhooksAsync<T>()
+        public async Task<T> GetAsync<T>()
         {
             var webHook = new WebHook();
 
@@ -45,7 +45,7 @@ namespace AuthyWebhook
             return await authyClient.SendHttpRequest<T>(requestModel);
         }
 
-        public async Task<bool> DeleteWebHookAsync(string webHookId)
+        public async Task<bool> DeleteAsync(string webHookId)
         {
             var webHook = new WebHook(webHookId);
 
@@ -68,34 +68,34 @@ namespace AuthyWebhook
             return $"{nonce}|{webHook.RequestType}|{Constants.GetAuthyUrl(webHook.Id)}|{sortedParams}"; ;
         }
 
-        public T CreateWebhooks<T>(WebHook webHook)
+        public T Create<T>(WebHook webHook)
         {
-            return CreateWebhooksAsync<T>(webHook).GetAwaiter().GetResult();
+            return CreateAsync<T>(webHook).GetAwaiter().GetResult();
         }
 
-        public async Task<string> CreateWebhooksAsync(WebHook webHook)
+        public async Task<string> CreateAsync(WebHook webHook)
         {
-            return await CreateWebhooksAsync<string>(webHook);
+            return await CreateAsync<string>(webHook);
         }
 
-        public string CreateWebhooks(WebHook webHook)
+        public string Create(WebHook webHook)
         {
-            return CreateWebhooks<string>(webHook);
+            return Create<string>(webHook);
         }
 
-        public T GetAuthyWebhooks<T>()
+        public T Get<T>()
         {
-            return GetAuthyWebhooksAsync<T>().GetAwaiter().GetResult();
+            return GetAsync<T>().GetAwaiter().GetResult();
         }
 
-        public string GetAuthyWebhooks()
+        public string Get()
         {
-            return GetAuthyWebhooksAsync<string>().GetAwaiter().GetResult();
+            return GetAsync<string>().GetAwaiter().GetResult();
         }
 
-        public bool DeleteWebHook(string webHookId)
+        public bool Delete(string webHookId)
         {
-            return DeleteWebHookAsync(webHookId).GetAwaiter().GetResult();
+            return DeleteAsync(webHookId).GetAwaiter().GetResult();
         }
     }
 }

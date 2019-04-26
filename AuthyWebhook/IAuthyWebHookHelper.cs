@@ -5,13 +5,13 @@ namespace AuthyWebhook
 {
     public interface IAuthyWebHookHelper
     {
-        Task<T> CreateWebhooksAsync<T>(WebHook webHook);
-        T CreateWebhooks<T>(WebHook webHook);
-        Task<string> CreateWebhooksAsync(WebHook webHook);
-        string CreateWebhooks(WebHook webHook);
-        Task<T> GetAuthyWebhooksAsync<T>();
-        string GetAuthyWebhooks();
-        Task<bool> DeleteWebHookAsync(string webHookId);
-        bool DeleteWebHook(string webHookId);
+        Task<T> CreateAsync<T>(WebHook webHook);
+        T Create<T>(WebHook webHook);
+        Task<string> CreateAsync(WebHook webHook);
+        string Create(WebHook webHook);
+        Task<T> GetAsync<T>();
+        string Get();
+        Task<bool> DeleteAsync(string webHookId);
+        bool Delete(string webHookId);
     }
 }
