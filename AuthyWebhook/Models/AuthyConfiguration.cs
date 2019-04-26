@@ -10,10 +10,6 @@ namespace AuthyWebhook.Models
         public string AccessKey { get; set; }
         public string SigninKey { get; set; }
 
-        public AuthyConfiguration()
-        {
-            
-        }
         public AuthyConfiguration(string apiKey, string accessKey, string signinKey)
         {
             this.ApiKey = apiKey;

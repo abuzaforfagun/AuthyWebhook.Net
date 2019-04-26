@@ -11,6 +11,7 @@ namespace AuthyWebhook
         private ICryptographyHelper cryptographyHelper;
         private readonly  string nonce;
         private readonly AuthyConfiguration configuration;
+        public List<Response> WebHooks { get; set; }
 
         public AuthyWebHookGenerator(AuthyConfiguration configuration)
         {
@@ -30,8 +31,8 @@ namespace AuthyWebhook
             string dataToSign = $"{nonce}|{method}|{Constants.AUTHY_WEBHOOK_URL}|{sortedParams}";
 
             var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
-            
-            var requestModel = new RequestModel(webHookConfiguration, hmacSignature, nonce);
+            var requestConfiguration = new RequestConfiguration(hmacSignature, nonce, HttpMethod.Post);
+            var requestModel = new RequestModel(webHookConfiguration, requestConfiguration);
             var authyClient = new AuthyClient(configuration);
             return await authyClient.SendHttpRequest<T>(requestModel);
         }
@@ -48,6 +49,27 @@ namespace AuthyWebhook
         public string CreateWebhooks(WebHookConfiguration webHookConfiguration)
         {
             return CreateWebhooks<string>(webHookConfiguration);
+        }
+
+        public async Task<T> GetAuthyWebhooksAsync<T>()
+        {
+            var method = "GET";
+            var sortedParams = $"access_key={configuration.AccessKey}&app_api_key={configuration.ApiKey}";
+            string dataToSign = $"{nonce}|{method}|{Constants.AUTHY_WEBHOOK_URL}|{sortedParams}";
+            var hmacSignature = cryptographyHelper.GenerateHmac(dataToSign, configuration.SigninKey);
+            var requestConfiguration = new RequestConfiguration(hmacSignature, nonce);
+            var requestModel = new RequestModel(requestConfiguration);
+            var authyClient = new AuthyClient(configuration);
+            return await authyClient.SendHttpRequest<T>(requestModel);
+        }
+
+        public T GetAuthyWebhooks<T>()
+        {
+            return GetAuthyWebhooksAsync<T>().GetAwaiter().GetResult();
+        }
+        public string GetAuthyWebhooks()
+        {
+            return GetAuthyWebhooksAsync<string>().GetAwaiter().GetResult();
         }
     }
 }
