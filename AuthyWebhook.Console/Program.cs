@@ -7,7 +7,7 @@ namespace AuthyWebhook.Console
         private static AuthyWebHookHelper authyWebHookHelper;
         static void Main(string[] args)
         {
-            var authyConfiguration = new AuthyConfiguration("hxepMv9dqM42q47lLI7kMG0FJT9WB1Ok", "1VikdxydeRKOJ4ZBFQQUDkq43pTveerXtdhFlkVLd3Y", "sMDyDH5Z3tWfg8Z3dG44nJ2kg9Gsc48O");
+            var authyConfiguration = new AuthyConfiguration("API_KEY", "ACCESS_KEY", "SIGNIN_KEY");
             authyWebHookHelper = new AuthyWebHookHelper(authyConfiguration);
 
             var result = ListSample <ResponseList>();
@@ -17,7 +17,7 @@ namespace AuthyWebhook.Console
 
         static T CreateSample<T>()
         {
-            var webHook = new WebHook("one_touch_request_responded", "one_touch_request_responded", "https://example/api/webhooked");
+            var webHook = new WebHook("one_touch_request_responded", Constants.Events.ONE_TOUCH_REQUEST_RESPONDED, "https://example/api/webhooked");
             return authyWebHookHelper.Create<T>(webHook);
         }
 

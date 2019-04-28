@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Twilio.Authy.WebHookHelper</PackageId>
+    <Authors>Abu Zafor Fagun</Authors>
+    <Description>Using this package you can create, list or delete Authy webhooks</Description>
+    <PackageIconUrl>https://theme.zdassets.com/theme_assets/5194/e4cb519b8fd65a151c98697c4f4d4b5a1bc1c77c.svg</PackageIconUrl>
+    <RepositoryUrl>https://github.com/abuzaforfagun/AuthyWebhook.Net</RepositoryUrl>
+    <PackageTags>authy, twilio, webhook, 2factor authentication</PackageTags>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/abuzaforfagun/AuthyWebhook.Net</PackageProjectUrl>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
