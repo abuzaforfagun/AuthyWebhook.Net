@@ -5,7 +5,8 @@ This repo demonstrates how to Create, List, Delete Authy webhooks. You can set a
 Official documentation may be found here: https://www.twilio.com/docs/api/authy/authy-webhooks-api
 
 ### Setup Environment
-1. Install nuget package or clone this repository and add refference of AuthyWebhook project.
+1. Install [nuget package](https://www.nuget.org/packages/Twilio.Authy.WebHookHelper/)
+ or clone this repository and add refference of AuthyWebhook project.
 2. Browse to the application you want to use in the twilio.com/console where (once enabled) you should now see:
     * App API Key
     * Your Access Key
