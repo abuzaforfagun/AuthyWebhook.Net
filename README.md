@@ -11,8 +11,15 @@ Official documentation may be found here: https://www.twilio.com/docs/api/authy/
     * Your Access Key
     * API Signing Key
     * Authy API Key
-3. Create authy object of AuthyConfiguration with you api key, access key and signin key. ``` var authyConfiguration = new AuthyConfiguration("API_KEY", "ACCESS_KEY", "SIGNIN_KEY"); ```
-4. Create object of AuthyWebHookHelper. ``` new AuthyWebHookHelper(authyConfiguration); ```
+3. Create authy object of AuthyConfiguration with you api key, access key and signin key. 
+
+```
+ var authyConfiguration = new AuthyConfiguration("API_KEY", "ACCESS_KEY", "SIGNIN_KEY"); 
+```
+4. Create object of AuthyWebHookHelper. 
+```
+new AuthyWebHookHelper(authyConfiguration);
+ ```
 
 ## Public Webhook Events
 You can trigger webhooks using the following events.  You can use multiple events in a single webhook.
@@ -42,11 +49,18 @@ You can trigger webhooks using the following events.  You can use multiple event
 * user_removed
 
 ### Listing Webhooks
-``` authyWebHookHelper.Get<T>(); ```
+Use string or ResponseList as the value of T
+``` 
+authyWebHookHelper.Get<T>(); 
+```
 
 ### Create a Webhook
 use string or Response as value of T
-``` var webHook = new WebHook("one_touch_request_responded", Constants.Events.ONE_TOUCH_REQUEST_RESPONDED, "https://example/api/webhooked");
-            var result = authyWebHookHelper.Create<T>(webHook);```
+``` 
+var webHook = new WebHook("one_touch_request_responded", Constants.Events.ONE_TOUCH_REQUEST_RESPONDED, "https://example/api/webhooked");
+            var result = authyWebHookHelper.Create<T>(webHook);
+```
 ### Deleting a Webhook
-``` authyWebHookHelper.Delete("WEB_HOOK_ID"); ```
+``` 
+authyWebHookHelper.Delete("WEB_HOOK_ID"); 
+```
